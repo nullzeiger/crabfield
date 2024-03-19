@@ -6,7 +6,7 @@ use rand::Rng;
 use std::io;
 
 // minefield with a size 10x10
-const ROWSCOLS: i32 = 10;
+const ROWSCOLS: usize = 10;
 // Number of mines
 const MINES: usize = 5;
 // Map symbol
@@ -75,11 +75,13 @@ impl Mine {
 }
 
 // Create map
-fn create_map(arrive: Arrive) -> Vec<Vec<char>> {
-    let mut map: Vec<Vec<char>> = Vec::with_capacity(10);
+fn create_map(arrive: Arrive) -> [[char; ROWSCOLS]; ROWSCOLS] {
+    let mut map: [[char; ROWSCOLS]; ROWSCOLS] = [[' '; 10]; 10];
 
-    for _ in 0..10 {
-        map.push(vec![MAPSYMBOL; ROWSCOLS as usize]);
+    for i in 0..ROWSCOLS {
+        for j in 0..ROWSCOLS {
+            map[i][j] = MAPSYMBOL;
+        }
     }
 
     map[arrive.y as usize][arrive.x as usize] = arrive.symbol;
@@ -88,7 +90,7 @@ fn create_map(arrive: Arrive) -> Vec<Vec<char>> {
 }
 
 // Clear console and print map
-fn print_map(mut map: Vec<Vec<char>>, hero: &Hero) {
+fn print_map(mut map: [[char; ROWSCOLS]; ROWSCOLS], hero: &Hero) {
     print!("\x1B[2J\x1B[H");
 
     println!("Command to move(hjkl) and exit(q)");
@@ -109,7 +111,7 @@ fn main() {
     let mines = Mine::create_mines();
     let map = create_map(arrive);
 
-    print_map(map.clone(), &hero);
+    print_map(map, &hero);
 
     let mut game_loop = true;
 
@@ -127,7 +129,7 @@ fn main() {
                 if hero.x > 9 {
                     hero.x = 9;
                 }
-                print_map(map.clone(), &hero);
+                print_map(map, &hero);
             }
 
             "h" => {
@@ -135,7 +137,7 @@ fn main() {
                 if hero.x < 0 {
                     hero.x = 0;
                 }
-                print_map(map.clone(), &hero);
+                print_map(map, &hero);
             }
 
             "k" => {
@@ -143,7 +145,7 @@ fn main() {
                 if hero.y > 9 {
                     hero.y = 9;
                 }
-                print_map(map.clone(), &hero);
+                print_map(map, &hero);
             }
 
             "j" => {
@@ -151,9 +153,9 @@ fn main() {
                 if hero.y < 0 {
                     hero.y = 0;
                 }
-                print_map(map.clone(), &hero);
+                print_map(map, &hero);
             }
-            _ => print_map(map.clone(), &hero),
+            _ => print_map(map, &hero),
         }
 
         if hero.x == arrive.x && hero.y == arrive.y {
@@ -164,7 +166,7 @@ fn main() {
         for mine in mines.iter() {
             if hero.x == mine.x && hero.y == mine.y {
                 hero.symbol = mine.symbol;
-                print_map(map.clone(), &hero);
+                print_map(map, &hero);
                 println!("Game Over!!");
                 game_loop = false;
                 break;
